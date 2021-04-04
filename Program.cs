@@ -16,6 +16,7 @@ namespace kolkoikrzyzkyMINIMAX
     {
         public static readonly char ZnakMiniMaxa = 'O';
         public static readonly char ZnakGracza = 'X';
+        public static int licznikMozliwosci = 0;
 
         static void Main(string[] args)
         {
@@ -60,6 +61,8 @@ namespace kolkoikrzyzkyMINIMAX
         static void PokazPlansze(char[] _plansza)
         {
             // Byla tu pentla ale po prostu tak jest czytelniej i latwiej do edycji PepoLove <3
+            Console.WriteLine($"Obliczono {licznikMozliwosci} mozliwosci!");
+            Console.WriteLine("\n");
             Console.WriteLine($" {_plansza[0]} | {_plansza[1]} | {_plansza[2]}");
             Console.WriteLine(" --+---+--");
             Console.WriteLine($" {_plansza[3]} | {_plansza[4]} | {_plansza[5]}");
@@ -71,6 +74,7 @@ namespace kolkoikrzyzkyMINIMAX
             Console.WriteLine(" 4 | 5 | 6");
             Console.WriteLine(" --+---+--");
             Console.WriteLine(" 7 | 8 | 9");
+            Console.Write("Wprowadz pozycje: ");
         }
 
         static void ZrobRuch(char[] _plansza, bool _ruch)
@@ -84,6 +88,7 @@ namespace kolkoikrzyzkyMINIMAX
             }               
             else
             {
+                licznikMozliwosci = 0;
                 int pozycja = NajlepszyRuch(_plansza);
                 _plansza[pozycja] = 'O';
             }
@@ -100,6 +105,8 @@ namespace kolkoikrzyzkyMINIMAX
         static int MiniMax(char[] _plansza, bool maksymalizuj, int dalekosc)
         {
             char[] plansza = (char[])_plansza.Clone();
+
+            licznikMozliwosci++;
 
             if (SprawdzenieWygranejDanegoZnaku(plansza, ZnakMiniMaxa))
                 return 10;
