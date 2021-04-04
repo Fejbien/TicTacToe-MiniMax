@@ -22,49 +22,44 @@ namespace kolkoikrzyzkyMINIMAX
             // true - ruch gracza    X
             // false - ruch minimaxa O
             bool ruch = true;
-            char[] plansza = new char[9];
-            // Do testowanie ukladow trzeba usunac jeszcze pentle for ponizej <3
-            //char[] plansza = { 'X', 'O', ' ', ' ', 'O', ' ', ' ', ' ', 'X' };
-
-            for (int i = 0; i < plansza.Length; i++)
-                plansza[i] = ' ';
+            char[] plansza = { 
+                ' ', ' ', ' ', 
+                ' ', ' ', ' ', 
+                ' ', ' ', ' ' };
 
             while (true)
             {
                 Console.Clear();
                 PokazPlansze(plansza);
                 ZrobRuch(plansza, ruch);
-                if (CzyWygrana(plansza, ruch))
-                {
-                    Console.Clear();
-                    Console.WriteLine($"Koniec gry wygrało {(ruch ? 'X' : 'O')}!");
-                    PokazPlansze(plansza);
-                    Console.ReadKey();
+                if (CzyGraSieSkonczyla(plansza, ruch))
                     return;
-                }
-                if(KoniecGry(plansza))
-                {
-                    Console.Clear();
-                    Console.WriteLine($"Koniec gry remis!");
-                    PokazPlansze(plansza);
-                    Console.ReadKey();
-                    return;
-                }
                 ruch = !ruch;
             }
         }
 
+        static bool CzyGraSieSkonczyla(char[] _plansza, bool _ruch)
+        {
+            bool czyRemis = KoniecGry(_plansza);
+            bool czyWygrana = CzyWygrana(_plansza, _ruch);
+            if (czyWygrana || czyRemis)
+            {
+                Console.Clear();
+                if(czyWygrana)
+                    Console.WriteLine($"Koniec gry wygrało {(_ruch ? 'X' : 'O')}!");
+                else
+                    Console.WriteLine($"Koniec gry remis!");
+                PokazPlansze(_plansza);
+                Console.ReadKey();
+                return true;
+            }
+
+            return false;
+        }
+
         static void PokazPlansze(char[] _plansza)
         {
-            /*
-            for (int i = 0; i < _plansza.Length; i++)
-            {
-                if (i % 3 == 0 && i != 0)
-                    Console.WriteLine();
-                Console.Write($"{_plansza[i]} ");
-            }
-            */
-
+            // Byla tu pentla ale po prostu tak jest czytelniej i latwiej do edycji PepoLove <3
             Console.WriteLine($" {_plansza[0]} | {_plansza[1]} | {_plansza[2]}");
             Console.WriteLine(" --+---+--");
             Console.WriteLine($" {_plansza[3]} | {_plansza[4]} | {_plansza[5]}");
@@ -82,13 +77,10 @@ namespace kolkoikrzyzkyMINIMAX
         {
             if (_ruch)
             {
-                int pozycja = int.Parse(Console.ReadLine()) - 1;
-                while (pozycja < 0 || pozycja > 9 || _plansza[pozycja] != ' ')
-                {
+                int pozycja;
+                while (!int.TryParse(Console.ReadLine(), out pozycja) || pozycja < 0 || pozycja > 9 || _plansza[pozycja - 1] != ' ')
                     Console.WriteLine("Podaj cos w granicach od 1 do 9 ktore nie jest zajete: ");
-                    pozycja = int.Parse(Console.ReadLine());
-                }
-                _plansza[pozycja] = 'X';
+                _plansza[pozycja - 1] = 'X';
             }               
             else
             {
@@ -99,18 +91,7 @@ namespace kolkoikrzyzkyMINIMAX
 
         static bool CzyWygrana(char[] _plansza, bool ruch)
         { 
-            char o = ruch ? 'X' : 'O';
-            if (//Pozime
-                o == _plansza[0] && o == _plansza[1] && o == _plansza[2] ||
-                o == _plansza[3] && o == _plansza[4] && o == _plansza[5] ||
-                o == _plansza[6] && o == _plansza[7] && o == _plansza[8] ||
-                //Na skos
-                o == _plansza[0] && o == _plansza[4] && o == _plansza[8] ||
-                o == _plansza[6] && o == _plansza[4] && o == _plansza[2] ||
-                //Pionowe
-                o == _plansza[0] && o == _plansza[3] && o == _plansza[6] ||
-                o == _plansza[1] && o == _plansza[4] && o == _plansza[7] ||
-                o == _plansza[2] && o == _plansza[5] && o == _plansza[8])
+            if (SprawdzenieWygranejDanegoZnaku(_plansza, ruch ? 'X' : 'O'))
                 return true;
             else
                 return false;
@@ -120,9 +101,9 @@ namespace kolkoikrzyzkyMINIMAX
         {
             char[] plansza = (char[])_plansza.Clone();
 
-            if (SprawdzenieWygranejMiniMaxa(plansza))
+            if (SprawdzenieWygranejDanegoZnaku(plansza, ZnakMiniMaxa))
                 return 10;
-            else if (SprawdzenieWygranejGracza(plansza))
+            else if (SprawdzenieWygranejDanegoZnaku(plansza, ZnakGracza))
                 return -10;
             else if (KoniecGry(plansza))
                 return 0;
@@ -164,28 +145,9 @@ namespace kolkoikrzyzkyMINIMAX
             return true;
         }
 
-        static bool SprawdzenieWygranejMiniMaxa(char[] _plansza)
+        static bool SprawdzenieWygranejDanegoZnaku(char[] _plansza, char znak)
         {
-            char o = ZnakMiniMaxa;
-            if (//Pozime
-                o == _plansza[0] && o == _plansza[1] && o == _plansza[2] ||
-                o == _plansza[3] && o == _plansza[4] && o == _plansza[5] ||
-                o == _plansza[6] && o == _plansza[7] && o == _plansza[8] ||
-                //Na skos
-                o == _plansza[0] && o == _plansza[4] && o == _plansza[8] ||
-                o == _plansza[6] && o == _plansza[4] && o == _plansza[2] ||
-                //Pionowe
-                o == _plansza[0] && o == _plansza[3] && o == _plansza[6] ||
-                o == _plansza[1] && o == _plansza[4] && o == _plansza[7] ||
-                o == _plansza[2] && o == _plansza[5] && o == _plansza[8])
-                return true;
-            else
-                return false;
-        }
-
-        static bool SprawdzenieWygranejGracza(char[] _plansza)
-        {
-            char o = ZnakGracza;
+            char o = znak;
             if (//Pozime
                 o == _plansza[0] && o == _plansza[1] && o == _plansza[2] ||
                 o == _plansza[3] && o == _plansza[4] && o == _plansza[5] ||
@@ -215,7 +177,6 @@ namespace kolkoikrzyzkyMINIMAX
             int miejsce = int.MinValue;
             char[] plansza = (char[])_plansza.Clone();
             for (int i = 0; i < plansza.Length; i++)
-            {
                 if (plansza[i] == ' ')
                 {
                     int zwrotna = MiniMax(ZrobRuchWMiejscu(plansza, false, i), false, 0);
@@ -225,7 +186,6 @@ namespace kolkoikrzyzkyMINIMAX
                         miejsce = i;
                     }
                 }
-            }
             return miejsce;
         }
     }
