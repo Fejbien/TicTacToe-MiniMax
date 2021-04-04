@@ -4,7 +4,7 @@ namespace kolkoikrzyzkyMINIMAX
 {
     /*
      * TODO:
-     * Poprawic delikatnie chodzi o to ze czlowiek nie wygra ale pc z pc wygra zawsze 2 osoba wiec biblethump bo powinen byc remis
+     * Poprawic zmienne w MiniMax moze sie zdarzyc sytuacja w ktorej komputer zamiast wygrac sremisuje al i tak nigdy nie przegra wiec chociaz o tyle dobrze
      */
 
     class Program
