@@ -1,3 +1,4 @@
 # TicTacToe-MiniMax
 
-Gra kółko i krzyżyk z MiniMaxem C#
+Gra w kółko i krzyżyk z algorytmem MiniMax
+Konsola C#
