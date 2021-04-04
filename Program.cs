@@ -1,42 +1,101 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 
 namespace kolkoikrzyzkyMINIMAX
 {
     /*
      * TODO:
-     * Uladnic kod (aktualnie jest to spageti XD)
-     * Zmiejszyc kod
-     * Dodac wybor gracza (X czy O)
      * Poprawic delikatnie chodzi o to ze czlowiek nie wygra ale pc z pc wygra zawsze 2 osoba wiec biblethump bo powinen byc remis
      */
 
     class Program
     {
-        public static readonly char ZnakMiniMaxa = 'O';
-        public static readonly char ZnakGracza = 'X';
+        public static char znakMiniMaxa = 'X';
+        public static char znakGracza = 'O';
         public static int licznikMozliwosci = 0;
 
         static void Main(string[] args)
         {
-            // true - ruch gracza    X
-            // false - ruch minimaxa O
-            bool ruch = true;
-            char[] plansza = { 
-                ' ', ' ', ' ', 
-                ' ', ' ', ' ', 
-                ' ', ' ', ' ' };
+            bool ruch;
+            bool gra = true;
+            char[] plansza;
+
+            Console.WriteLine("Wprowadz znak X albo O: ");
+            char wprowadzone;
+            wprowadzone = Console.ReadLine().ToUpper().ToCharArray()[0];
+            while (wprowadzone != 'X' && wprowadzone != 'O')
+            {
+                Console.WriteLine("Wprowadz jeszcze raz ale poprawinie: ");
+                wprowadzone = Console.ReadLine().ToUpper().ToCharArray()[0];
+            }
+
+            // true - zaczyna czlowiek
+            // false - zaczyna komputer
+            if (wprowadzone == 'X')
+            {
+                ruch = true;
+                znakGracza = 'X';
+                znakMiniMaxa = 'O';
+            }
+            else
+            {
+                ruch = false;
+                znakGracza = 'O';
+                znakMiniMaxa = 'X';
+            }
+
 
             while (true)
             {
-                Console.Clear();
-                PokazPlansze(plansza);
-                ZrobRuch(plansza, ruch);
-                if (CzyGraSieSkonczyla(plansza, ruch))
+                // Resetuje plansze
+                plansza = new char[] { 
+                  ' ', ' ', ' ',
+                  ' ', ' ', ' ',
+                  ' ', ' ', ' ' };
+
+                while (gra)
+                {
+                    Console.Clear();
+                    PokazPlansze(plansza, false);
+                    ZrobRuch(plansza, ruch);
+                    if (CzyGraSieSkonczyla(plansza, ruch))
+                        gra = false;
+                    ruch = !ruch;
+                }
+
+                if (!ZapytanieOKoncuGry())
                     return;
-                ruch = !ruch;
+
+                gra = true;
+                if (znakGracza == 'O')
+                {
+                    ruch = true;
+                    znakGracza = 'X';
+                    znakMiniMaxa = 'O';
+                }
+                else
+                {
+                    ruch = false;
+                    znakGracza = 'O';
+                    znakMiniMaxa = 'X';
+                }
             }
+        }
+
+        static bool ZapytanieOKoncuGry()
+        {
+            Console.WriteLine("Tak - Gra dalej z przeciwnym znakiem");
+            Console.WriteLine("Nie - Konic gry");
+            Console.Write("Wybor: ");
+            string str;
+            do
+            {
+                str = Console.ReadLine();
+                str = str.ToUpper();
+            } while (str != "TAK" && str != "NIE");
+            if (str == "TAK")
+                return true;
+            else
+                return false;
         }
 
         static bool CzyGraSieSkonczyla(char[] _plansza, bool _ruch)
@@ -46,11 +105,11 @@ namespace kolkoikrzyzkyMINIMAX
             if (czyWygrana || czyRemis)
             {
                 Console.Clear();
-                if(czyWygrana)
+                PokazPlansze(_plansza, true);
+                if (czyWygrana)
                     Console.WriteLine($"Koniec gry wygrało {(_ruch ? 'X' : 'O')}!");
                 else
                     Console.WriteLine($"Koniec gry remis!");
-                PokazPlansze(_plansza);
                 Console.ReadKey();
                 return true;
             }
@@ -58,7 +117,7 @@ namespace kolkoikrzyzkyMINIMAX
             return false;
         }
 
-        static void PokazPlansze(char[] _plansza)
+        static void PokazPlansze(char[] _plansza, bool czyJuzKoniec)
         {
             // Byla tu pentla ale po prostu tak jest czytelniej i latwiej do edycji PepoLove <3
             Console.WriteLine($"Obliczono {licznikMozliwosci} mozliwosci!");
@@ -68,13 +127,16 @@ namespace kolkoikrzyzkyMINIMAX
             Console.WriteLine($" {_plansza[3]} | {_plansza[4]} | {_plansza[5]}");
             Console.WriteLine(" --+---+--");
             Console.WriteLine($" {_plansza[6]} | {_plansza[7]} | {_plansza[8]}");
-            Console.WriteLine("\n");
-            Console.WriteLine(" 1 | 2 | 3");
-            Console.WriteLine(" --+---+--");
-            Console.WriteLine(" 4 | 5 | 6");
-            Console.WriteLine(" --+---+--");
-            Console.WriteLine(" 7 | 8 | 9");
-            Console.Write("Wprowadz pozycje: ");
+            if (!czyJuzKoniec)
+            {
+                Console.WriteLine("\n");
+                Console.WriteLine(" 1 | 2 | 3");
+                Console.WriteLine(" --+---+--");
+                Console.WriteLine(" 4 | 5 | 6");
+                Console.WriteLine(" --+---+--");
+                Console.WriteLine(" 7 | 8 | 9");
+                Console.Write("Wprowadz pozycje: ");
+            }
         }
 
         static void ZrobRuch(char[] _plansza, bool _ruch)
@@ -82,21 +144,21 @@ namespace kolkoikrzyzkyMINIMAX
             if (_ruch)
             {
                 int pozycja;
-                while (!int.TryParse(Console.ReadLine(), out pozycja) || pozycja < 0 || pozycja > 9 || _plansza[pozycja - 1] != ' ')
+                while (!int.TryParse(Console.ReadLine(), out pozycja) || pozycja - 1 < 0 || pozycja > 9 || _plansza[pozycja - 1] != ' ')
                     Console.WriteLine("Podaj cos w granicach od 1 do 9 ktore nie jest zajete: ");
-                _plansza[pozycja - 1] = 'X';
+                _plansza[pozycja - 1] = znakGracza;
             }               
             else
             {
                 licznikMozliwosci = 0;
                 int pozycja = NajlepszyRuch(_plansza);
-                _plansza[pozycja] = 'O';
+                _plansza[pozycja] = znakMiniMaxa;
             }
         }
 
         static bool CzyWygrana(char[] _plansza, bool ruch)
         { 
-            if (SprawdzenieWygranejDanegoZnaku(_plansza, ruch ? 'X' : 'O'))
+            if (SprawdzenieWygranejDanegoZnaku(_plansza, ruch ? znakGracza : znakMiniMaxa))
                 return true;
             else
                 return false;
@@ -108,9 +170,9 @@ namespace kolkoikrzyzkyMINIMAX
 
             licznikMozliwosci++;
 
-            if (SprawdzenieWygranejDanegoZnaku(plansza, ZnakMiniMaxa))
+            if (SprawdzenieWygranejDanegoZnaku(plansza, znakMiniMaxa))
                 return 10;
-            else if (SprawdzenieWygranejDanegoZnaku(plansza, ZnakGracza))
+            else if (SprawdzenieWygranejDanegoZnaku(plansza, znakGracza))
                 return -10;
             else if (KoniecGry(plansza))
                 return 0;
@@ -174,7 +236,7 @@ namespace kolkoikrzyzkyMINIMAX
         static char[] ZrobRuchWMiejscu(char[] _plansza, bool ruch, int miejsce)
         {
             char[] plansza = (char[])_plansza.Clone();
-            plansza[miejsce] = ruch ? 'X' : 'O';
+            plansza[miejsce] = ruch ? znakGracza : znakMiniMaxa;
             return plansza;
         }
 
